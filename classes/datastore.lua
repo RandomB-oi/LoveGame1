@@ -77,12 +77,14 @@ function Datastore:getDatastore(name)
 	self.name = name
 	self.path = "storedData/"..name
 	
-	pcall(function()
+	-- pcall(function()
 		if not isdir(self.path) then
 			print(self.path)
+		os.execute("mkdir storedData")
+		os.execute("mkdir storedData/"..name)
 			love.filesystem.createDirectory(self.path)
 		end
-	end)
+	-- end)
 
 	datastoreCache[name] = self
 	
