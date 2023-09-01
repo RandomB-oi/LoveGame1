@@ -79,7 +79,8 @@ function Datastore:getDatastore(name)
 	
 	pcall(function()
 		if not isdir(self.path) then
-			os.execute("mkdir " .. self.path)
+			print(self.path)
+			love.filesystem.createDirectory(self.path)
 		end
 	end)
 
