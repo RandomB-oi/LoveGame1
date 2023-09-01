@@ -36,9 +36,12 @@ function module:calulateLighting()
 			local blockPos = neighborPosition+vector2.new(self.x, self.y)
 			local block = mainWorld:getBlock(math.round(blockPos.x), math.round(blockPos.y))
 			if block and block.name then
-				applyHighest(brightestNeighbor, block.lightLevel)
-				if block.lightEmit then
+				if block.name == "air" then
+					applyHighest(brightestNeighbor, mainWorld.lightLevel)
+				elseif block.lightEmit then
 					applyHighest(brightestNeighbor, block.lightEmit)
+				else
+					applyHighest(brightestNeighbor, block.lightLevel)
 				end
 			else
 				applyHighest(brightestNeighbor, mainWorld.lightLevel)
@@ -64,9 +67,12 @@ function module:calulateLighting()
 			local blockPos = neighborPosition+vector2.new(self.x, self.y)
 			local block = mainWorld:getBlock(math.round(blockPos.x), math.round(blockPos.y))
 			if block and block.name then
-				brightestNeighbor = math.max(block.lightLevel.r, block.lightLevel.g, block.lightLevel.b, brightestNeighbor)
-				if block.lightEmit then
+				if block.name == "air" then
+					brightestNeighbor = math.max(mainWorld.lightLevel.r, mainWorld.lightLevel.g, mainWorld.lightLevel.b, brightestNeighbor)
+				elseif block.lightEmit then
 					brightestNeighbor = math.max(block.lightEmit.r, block.lightEmit.g, block.lightEmit.b, brightestNeighbor)
+				else
+					brightestNeighbor = math.max(block.lightLevel.r, block.lightLevel.g, block.lightLevel.b, brightestNeighbor)
 				end
 			else
 				brightestNeighbor = math.max(mainWorld.lightLevel.r, mainWorld.lightLevel.g, mainWorld.lightLevel.b, brightestNeighbor)

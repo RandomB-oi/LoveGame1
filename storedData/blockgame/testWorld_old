@@ -1,0 +1,51 @@
+{
+    ["worldDifferences"] = {},
+    ["playerData"] = {
+        ["position"] = {
+            ["x"] = -144.88,
+            ["y"] = 14.25,
+        },
+        ["fly"] = false,
+        ["toolbar"] = {
+            [1] = {
+                ["name"] = "iron_pick",
+                ["amount"] = 1,
+            },
+            [2] = {
+                ["name"] = "dirt",
+                ["amount"] = 386,
+            },
+            [3] = {
+                ["name"] = "grass",
+                ["amount"] = 39,
+            },
+            [4] = {
+                ["name"] = "planks",
+                ["amount"] = 84,
+            },
+            [5] = {
+                ["name"] = "leaves",
+                ["amount"] = 102,
+            },
+            [6] = {
+                ["name"] = "log",
+                ["amount"] = 27,
+            },
+            [7] = {
+                ["name"] = "torch",
+                ["amount"] = 195,
+            },
+            [8] = {
+                ["name"] = "stone",
+                ["amount"] = 22,
+            },
+            [9] = {},
+        },
+        ["currentItem"] = 1,
+        ["velocity"] = {
+            ["x"] = 0,
+            ["y"] = 0,
+        },
+    },
+    ["time"] = 17.049620128316,
+}

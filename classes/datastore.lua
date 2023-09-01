@@ -67,6 +67,8 @@ local Datastore = {}
 Datastore.__index = Datastore
 Datastore.type = "datastore"
 
+Datastore.Enabled = true
+
 local datastoreCache = {}
 
 function Datastore:getDatastore(name)
@@ -92,6 +94,8 @@ function Datastore:getDatastore(name)
 end
 
 function Datastore:setAsync(key, data)
+	if not Datastore.Enabled then return end
+	
 	local str = getStr(data, {})
 	local f = io.open(self.path.."/"..key, "w")
 	f:write("", str)
@@ -99,6 +103,8 @@ function Datastore:setAsync(key, data)
 end
 
 function Datastore:getAsync(key)
+	if not Datastore.Enabled then return end
+	
 	local f = io.open(self.path.."/"..key, "r")
 	if f then
    		local t = f:read("*all")
@@ -109,6 +115,8 @@ function Datastore:getAsync(key)
 end
 
 function Datastore:incrementAsync(key, amount)
+	if not Datastore.Enabled then return end
+	
 	local amount = amount or 1
 	local hasVal = self:getAsync(key)
 	if type(hasVal) ~= "number" then

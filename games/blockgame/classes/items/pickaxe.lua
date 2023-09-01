@@ -21,6 +21,7 @@ function module:leftClick(mousePosInBlockSpace)
 	
 	local x,y = math.floor(mousePosInBlockSpace.x), math.floor(mousePosInBlockSpace.y)
 	local block = mainWorld:getBlock(x,y)
+	print(block and block.name)
 	if block and block.name ~= "air" then
 		self.owner.toolbar:giveItem(block)
 		block:destroy()

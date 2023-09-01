@@ -16,16 +16,17 @@ local dayPhaseData = {
 }
 
 module.new = function(self)
-	self.blocks = {}
+	self.chunks = {}
 	self.origin = cframe.new(0, 0, 0)
 	self.cellSize = vector2.new(40, 40)
 	self.gravity = vector2.new(0, 50)
+	self.chunkSize = 32
 	self.terminalVelocity = vector2.new(20, 75)
 	self.renderDistance = 10
-	self.changes = {}
+	-- self.changes = {}
 
-	self.lightLevel = {r=15,g=15,b=15} -- 0 to 15
-	-- self.lightLevel = {r=2,g=2,b=2}
+	-- self.lightLevel = {r=15,g=15,b=15} -- 0 to 15
+	self.lightLevel = {r=2,g=2,b=2}
 	self.lightingMode = "color"
 	-- self.lightingMode = "white"
 	self.time = 12
@@ -34,77 +35,45 @@ module.new = function(self)
 	
 	self.maid.update = self.scene.update:connect(function(dt)
 		self.scene.cellSize = self.cellSize
-		self.time = (self.time + (dt * (24/dayLength))) % 24
+		-- self.time = (self.time + (dt * (24/dayLength))) % 24
 
-		local prevLight, currentLight
-		for i = 2, #dayPhaseData do
-			if dayPhaseData[i].time >= self.time and dayPhaseData[i-1].time <= self.time then
-				prevLight = dayPhaseData[i-1]
-				currentLight = dayPhaseData[i]
-			end
-		end
-		if prevLight and currentLight then
-			local alpha = (self.time - prevLight.time) / (currentLight.time - prevLight.time)
-			self.lightLevel.r = math.round(math.lerp(prevLight.color.r, currentLight.color.r, alpha))
-			self.lightLevel.g = math.round(math.lerp(prevLight.color.g, currentLight.color.g, alpha))
-			self.lightLevel.b = math.round(math.lerp(prevLight.color.b, currentLight.color.b, alpha))
-			local skyColor = prevLight.skyColor:lerp(currentLight.skyColor, alpha)
+		-- local prevLight, currentLight
+		-- for i = 2, #dayPhaseData do
+		-- 	if dayPhaseData[i].time >= self.time and dayPhaseData[i-1].time <= self.time then
+		-- 		prevLight = dayPhaseData[i-1]
+		-- 		currentLight = dayPhaseData[i]
+		-- 	end
+		-- end
+		-- if prevLight and currentLight then
+		-- 	local alpha = (self.time - prevLight.time) / (currentLight.time - prevLight.time)
+		-- 	self.lightLevel.r = math.round(math.lerp(prevLight.color.r, currentLight.color.r, alpha))
+		-- 	self.lightLevel.g = math.round(math.lerp(prevLight.color.g, currentLight.color.g, alpha))
+		-- 	self.lightLevel.b = math.round(math.lerp(prevLight.color.b, currentLight.color.b, alpha))
+		-- 	local skyColor = prevLight.skyColor:lerp(currentLight.skyColor, alpha)
 
-			if config and config.version == "0.10.2" then
-				love.graphics.setBackgroundColor(skyColor.r * 255, skyColor.g * 255, skyColor.b * 255)
-			else
-				love.graphics.setBackgroundColor(skyColor.r, skyColor.g, skyColor.b)
-			end
-		end
+		-- 	if config and config.version == "0.10.2" then
+		-- 		love.graphics.setBackgroundColor(skyColor.r * 255, skyColor.g * 255, skyColor.b * 255)
+		-- 	else
+		-- 		love.graphics.setBackgroundColor(skyColor.r, skyColor.g, skyColor.b)
+		-- 	end
+		-- end
 	end)
 	self.maid.draw = self.scene.draw:connect(function()
 		local origin = self.player and self.player.position or vector2.new(0, 0)
 		local rx, ry = math.round(origin.x), math.round(origin.y)
 
-		local renderBlocks = {}
-		local renderDistance = math.round(self.renderDistance)
+		local renderDistance = self.renderDistance
 		for _x = -renderDistance, renderDistance, 1 do
 			for _y = -renderDistance, renderDistance, 1 do
 				local x, y = rx+_x,ry+_y
 				local block = self:getBlock(x,y)
 				if block and block.name ~= "air" then
-					table.insert(renderBlocks, block)
+					block:render(self.origin * cframe.new(
+						block.x*self.cellSize.x, 
+						block.y*self.cellSize.y), 
+					self.cellSize)
 				end
 			end
-		end
-
-		local lightingBlocks = {}
-		local lightingCalculationDistance = renderDistance+5
-		for _x = -lightingCalculationDistance, lightingCalculationDistance, 1 do
-			for _y = -lightingCalculationDistance, lightingCalculationDistance, 1 do
-				local x, y = rx+_x,ry+_y
-				local block = self:getBlock(x,y)
-				if block then
-					table.insert(lightingBlocks, block)
-					block.lightLevel.r = 0
-					block.lightLevel.g = 0
-					block.lightLevel.b = 0
-				end
-			end
-		end
-			
-		while true do
-			local changed
-			for _, block in ipairs(lightingBlocks) do
-				if block then
-					if block:calulateLighting() then
-						changed = true
-					end
-				end
-			end
-			if not changed then break end
-		end
-			
-		for _, block in ipairs(renderBlocks) do
-			block:render(self.origin * cframe.new(
-				block.x*self.cellSize.x, 
-				block.y*self.cellSize.y), 
-			self.cellSize)
 		end
 	end)
 
@@ -158,53 +127,119 @@ module.new = function(self)
 	return self
 end
 
-function module:setChanges(changes)
-	self.changes = changes
-	for x, row in pairs(changes) do
-		for y, change in pairs(row) do
-			if change and change.name then
-				self:setBlock(x,y, change.name, change.extraData)
-			else
-				local existingBlock = self:getBlock(x,y)
-				if existingBlock then
-					existingBlock:destroy(true)
+function module:calculateLighting(rx, ry)
+	local lightingBlocks = {}
+
+	local totalcalculations = 0
+	local leftOff
+	local function calculate()
+		local changed
+		local modifiedCount = 0
+		while modifiedCount < 500 do
+			local i, block = next(lightingBlocks, leftOff)
+			leftOff = i
+			if not (i and block) then 
+				leftOff = nil
+				break 
+			end
+
+			modifiedCount = modifiedCount + 1
+			if block:calulateLighting() then
+				changed = true
+			end
+		end
+		return changed
+	end
+	
+	if rx and ry then
+		local beginTime = os.clock()
+		local lightingCalculationDistance = 15
+		for _x = -lightingCalculationDistance, lightingCalculationDistance, 1 do
+			for _y = -lightingCalculationDistance, lightingCalculationDistance, 1 do
+				local x, y = rx+_x,ry+_y
+				local block = self:getBlock(x,y)
+				if block then
+					table.insert(lightingBlocks, block)
+					block.lightLevel.r = 0
+					block.lightLevel.g = 0
+					block.lightLevel.b = 0
 				end
 			end
+		end
+		print("took",os.clock()-beginTime,"seconds to load")
+		
+		coroutine.wrap(function()
+			while true do
+				if not calculate() then
+					print(totalcalculations)
+					break
+				end
+			end	
+		end)()
+	else
+		local threadCounts = 1
+		-- for x, row in pairs(self.blocks) do
+		-- 	for y, block in pairs(row) do
+		-- 		table.insert(lightingBlocks, block)
+		-- 	end
+		-- end
+		local connections = {}
+		local beginTime = os.clock()
+		for _ = 1, threadCounts do
+			local i = 0
+			local conn conn = self.scene.update:connect(function()
+				i = i + 1
+				if i % 10 ~= 0 then return end
+				if not calculate() then	
+					print("took",os.clock()-beginTime,"seconds to load")
+					for i,v in pairs(connections) do
+						v:disconnect()
+					end
+				end
+			end)
+			table.insert(connections, conn)
 		end
 	end
 end
 
-function module:getBlock(x,y)
-	return self.blocks[x] and self.blocks[x][y]
+function module:setChanges(allChanges)
+	for x, row in pairs(allChanges) do
+		for y, change in pairs(row) do
+			local chunk = self:getChunk(x,y)
+			chunk:setChanges(changes)
+		end
+	end
 end
 
-function module:setBlock(x,y, blockName, extraData, worldGen)
-	-- if blockName == "air" then return end
-	
-	local has = self:getBlock(x,y)
-	if has then has:destroy() end
+function module:getChunk(x,y, dontGenerate)
+	local chunkX = x - x % self.chunkSize
+	local chunkY = y - y % self.chunkSize
 
-	if not worldGen then
-		self.changes[x] = self.changes[x] or {}
-		self.changes[x][y] = {name = blockName, extraData = extraData}
+	local chunk = self.chunks[chunkX] and self.chunks[chunkX][chunkY]
+
+	if not chunk then
+		if dontGenerate then return end
+		local newChunk = instance.new("chunk", self.scene)
+		self.maid:giveTask(newChunk)
+		self.chunks[chunkX] = self.chunks[chunkX] or {}
+		self.chunks[chunkX][chunkY] = newChunk
+		newChunk.world = self
+		chunk = newChunk
 	end
-	
-	self.blocks[x] = self.blocks[x] or {}
-	--owner, name, amount, extraData
-	local newBlock = instance.new(blockName, nil, blockName, 1, nil)
-	if not newBlock then return end
-	
-	newBlock.x = x
-	newBlock.y = y
-	newBlock.maid:giveTask(function()
-		self.blocks[x][y] = nil
-		self:setBlock(x,y, "air")
-	end)
-	newBlock.mined:connect(function()
-		self.changes[x] = self.changes[x] or {}
-		self.changes[x][y] = {}
-	end)
-	self.blocks[x][y] = newBlock
+
+	return chunk
+end
+
+function module:getBlock(x,y)
+	local chunk = self:getChunk(x,y)
+
+	return chunk:getBlock(x,y, true)
+end
+
+function module:setBlock(x,y, ...)
+	local chunk = self:getChunk(x,y)
+
+	chunk:setBlock(x,y,true,...)
 end
 
 module.init = function()

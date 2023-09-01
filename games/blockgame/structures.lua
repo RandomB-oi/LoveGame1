@@ -31,7 +31,7 @@ return {
 		shouldOverwrite = true,
 		origin = vector2.new(1,6),
 		legend = {
-			a = "void",
+			a = "air",
 			p = "planks",
 			l = "log",
 		},

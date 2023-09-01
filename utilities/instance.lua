@@ -6,7 +6,7 @@ function module.new(classname, ...)
 	if class then
 		return classUtil.new(class, ...)
 	end
-	print(classname, "does not exist")
+	print(classname, "does not exist", debug.traceback())
 end
 
 function module.addClass(name, class)

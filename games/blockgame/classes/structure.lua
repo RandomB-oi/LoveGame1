@@ -6,13 +6,12 @@ module.new = function(world, data, wx, wy)
 		for px = 1, pattern:len() do
 			local blockName = data.legend[pattern:sub(px, px)]
 			if blockName and blockName ~= "void" then
-					local block = world:getBlock(x,y)
-					if block then
-						block:destroy()
-					end
-					local x, y = px - data.origin.x + wx, py - data.origin.y + wy
-
-					world:setBlock(x,y, blockName, nil, true)
+				local x, y = px - data.origin.x + wx, py - data.origin.y + wy
+				local block = world:getBlock(x,y)
+				if block then
+					block:destroy()
+				end
+				world:setBlock(x,y, blockName, nil, true)
 			end
 		end
 	end

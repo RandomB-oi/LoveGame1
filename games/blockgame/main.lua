@@ -21,7 +21,7 @@ module.init = function()
 	
 		local screenWidth = love.graphics.getWidth()
 		local blockWidth = mainWorld.cellSize.x
-		mainWorld.renderDistance = (screenWidth/blockWidth)/2+1
+		mainWorld.renderDistance = math.round((screenWidth/blockWidth)/2+1)
 
 		local lastSave = 0
 		local saveInterval = 60*1
@@ -62,9 +62,9 @@ module.init = function()
 						localPlayer.toolbar.items[i] = newItem or {}
 					end
 				end
-				local worldDifferences = savedData.worldDifferences
-				if worldDifferences then
-					mainWorld:setChanges(worldDifferences)
+				local chunkDifferences = savedData.chunkDifferences
+				if chunkDifferences then
+					mainWorld:setChanges(chunkDifferences)
 				end
 				if savedData.time then
 					mainWorld.time = savedData.time
@@ -92,10 +92,23 @@ module.init = function()
 				extraData = item.extraData,
 			}
 		end
+
+		local allChanges = {}
+		for x, row in pairs(mainWorld.chunks) do
+			allChanges[x] = {}
+			for y, chunk in pairs(row) do
+				if next(chunk.changes) then
+					allChanges[x][y] = chunk.changes
+				end
+			end
+			if not next(allChanges[x]) then
+				allChanges[x] = nil
+			end
+		end
 		
 		blockgameData:setAsync(worldName, {
 			playerData = playerData,
-			worldDifferences = mainWorld.changes,
+			chunkDifferences = allChanges,
 			time = mainWorld.time,
 		})
 	end
@@ -105,6 +118,8 @@ module.start = function()
 	mainGame:setWindowSize(vector2.new(600, 400))
 
 	mainGame:loadWorld("testWorld")
+	
+	mainWorld:calculateLighting()
 end
 
 return module

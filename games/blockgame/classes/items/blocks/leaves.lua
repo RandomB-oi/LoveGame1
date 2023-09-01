@@ -5,7 +5,7 @@ module.derives = "games/blockgame/classes/items/block"
 module.new = function(self)
 	self.image = love.graphics.newImage("games/blockgame/assets/leaves.png")
 	self.color = seasonColor
-	self.collidable = false
+	-- self.collidable = false
 	return self
 end
 
