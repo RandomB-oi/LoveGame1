@@ -42,31 +42,33 @@ module.init = function()
 
 		do
 			local savedData = blockgameData:getAsync(worldName)
-			local playerData = savedData and savedData.playerData
-			if playerData then
-				localPlayer.position.x = playerData.position.x
-				localPlayer.position.y = playerData.position.y
-				
-				localPlayer.velocity.x = playerData.velocity.x
-				localPlayer.velocity.y = playerData.velocity.y
-	
-				localPlayer.currentItem = playerData.currentItem
-				localPlayer.fly = playerData.fly
-	
-				for i, item in pairs(playerData.toolbar) do
-					local newItem
-					if item.name then
-						newItem = instance.new(item.name or "item", localPlayer, item.name, item.amount, item.extraData)
+			if savedData then
+				local playerData = savedData.playerData
+				if playerData then
+					localPlayer.position.x = playerData.position.x
+					localPlayer.position.y = playerData.position.y
+					
+					localPlayer.velocity.x = playerData.velocity.x
+					localPlayer.velocity.y = playerData.velocity.y
+		
+					localPlayer.currentItem = playerData.currentItem
+					localPlayer.fly = playerData.fly
+		
+					for i, item in pairs(playerData.toolbar) do
+						local newItem
+						if item.name then
+							newItem = instance.new(item.name or "item", localPlayer, item.name, item.amount, item.extraData)
+						end
+						localPlayer.toolbar.items[i] = newItem or {}
 					end
-					localPlayer.toolbar.items[i] = newItem or {}
 				end
-			end
-			local worldDifferences = savedData and savedData.worldDifferences
-			if worldDifferences then
-				mainWorld:setChanges(worldDifferences)
-			end
-			if savedData and savedData.time then
-				mainWorld.time = savedData.time
+				local worldDifferences = savedData.worldDifferences
+				if worldDifferences then
+					mainWorld:setChanges(worldDifferences)
+				end
+				if savedData.time then
+					mainWorld.time = savedData.time
+				end
 			end
 		end
 	end

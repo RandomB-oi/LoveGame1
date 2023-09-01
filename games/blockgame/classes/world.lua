@@ -49,7 +49,12 @@ module.new = function(self)
 			self.lightLevel.g = math.round(math.lerp(prevLight.color.g, currentLight.color.g, alpha))
 			self.lightLevel.b = math.round(math.lerp(prevLight.color.b, currentLight.color.b, alpha))
 			local skyColor = prevLight.skyColor:lerp(currentLight.skyColor, alpha)
-			love.graphics.setBackgroundColor(skyColor.r * 255, skyColor.g * 255, skyColor.b * 255)
+
+			if config and config.version == "0.10.2" then
+				love.graphics.setBackgroundColor(skyColor.r * 255, skyColor.g * 255, skyColor.b * 255)
+			else
+				love.graphics.setBackgroundColor(skyColor.r, skyColor.g, skyColor.b)
+			end
 		end
 	end)
 	self.maid.draw = self.scene.draw:connect(function()
