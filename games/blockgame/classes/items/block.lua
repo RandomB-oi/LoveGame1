@@ -47,7 +47,12 @@ function module:calulateLighting()
 		local changed
 		for comp, val in pairs(brightestNeighbor) do
 			local prev = self.lightLevel[comp]
-			self.lightLevel[comp] = math.clamp(val-1, 0, 15)
+			
+			if self.transparent then
+				self.lightLevel[comp] = math.clamp(val, 0, 15)
+			else
+				self.lightLevel[comp] = math.clamp(val-1, 0, 15)
+			end
 			if self.lightLevel[comp] ~= prev then
 				changed = true
 			end
@@ -69,7 +74,12 @@ function module:calulateLighting()
 		end
 		local changed
 		local prev = self.lightLevel.r
-		local newVal = math.clamp(brightestNeighbor-1, 0, 15)
+		local newVal
+		if self.transparent then
+			newVal = math.clamp(brightestNeighbor, 0, 15)
+		else
+			newVal = math.clamp(brightestNeighbor-1, 0, 15)
+		end
 		self.lightLevel.r = newVal
 		self.lightLevel.g = newVal
 		self.lightLevel.b = newVal

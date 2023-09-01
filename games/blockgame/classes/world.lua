@@ -24,8 +24,8 @@ module.new = function(self)
 	self.renderDistance = 10
 	self.changes = {}
 
-	-- self.lightLevel = {r=15,g=15,b=15} -- 0 to 15
-	self.lightLevel = {r=2,g=2,b=2}
+	self.lightLevel = {r=15,g=15,b=15} -- 0 to 15
+	-- self.lightLevel = {r=2,g=2,b=2}
 	self.lightingMode = "color"
 	-- self.lightingMode = "white"
 	self.time = 12

@@ -4,6 +4,7 @@ module.derives = "games/blockgame/classes/items/block"
 
 module.new = function(self)
 	self.collidable = false
+	-- self.transparent = true
 	return self
 end
 
