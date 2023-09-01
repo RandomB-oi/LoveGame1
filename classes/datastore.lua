@@ -75,7 +75,8 @@ function Datastore:getDatastore(name)
 	end
 	local self = setmetatable({}, Datastore)
 	self.name = name
-	self.path = "storedData/"..name
+	self.path = "storedData."..name
+	
 	pcall(function()
 		if not isdir(self.path) then
 			os.execute("mkdir " .. self.path)
@@ -89,13 +90,13 @@ end
 
 function Datastore:setAsync(key, data)
 	local str = getStr(data, {})
-	local f = io.open(self.path.."/"..key, "w")
+	local f = io.open(self.path.."."..key, "w")
 	f:write("", str)
 	f:close()
 end
 
 function Datastore:getAsync(key)
-	local f = io.open(self.path.."/"..key, "r")
+	local f = io.open(self.path.."."..key, "r")
 	if f then
    		local t = f:read("*all")
 	    f:close()

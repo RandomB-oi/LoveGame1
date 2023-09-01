@@ -65,7 +65,7 @@ module.init = function()
 			if worldDifferences then
 				mainWorld:setChanges(worldDifferences)
 			end
-			if savedData.time then
+			if savedData and savedData.time then
 				mainWorld.time = savedData.time
 			end
 		end
@@ -102,7 +102,7 @@ end
 module.start = function()
 	mainGame:setWindowSize(vector2.new(600, 400))
 
-	mainGame:loadWorld("testWorld.lua")
+	mainGame:loadWorld("testWorld")
 end
 
 return module

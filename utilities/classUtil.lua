@@ -31,7 +31,15 @@ module.recurseRequire = function(directory, requireOrder)
 	local files = {}
 	
 	for i, fileName in pairs(love.filesystem.getDirectoryItems(directory)) do
-		if love.filesystem.isDirectory(directory.."/"..fileName) then
+		local isDirectory do
+			if love.filesystem.getInfo then
+				isDirectory = love.filesystem.getInfo(directory.."/"..fileName).type == "directory"
+			else
+				isDirectory = love.filesystem.isDirectory(directory.."/"..fileName)
+			end
+		end
+
+		if isDirectory then
 			table.insert(directories, {name = fileName, directory = directory.."/"..fileName})
 		elseif fileName:find(".lua") then
 			local objectName = string.split(fileName, ".")[1]

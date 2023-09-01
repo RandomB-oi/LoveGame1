@@ -70,7 +70,11 @@ function module:lerp(other, alpha)
 end
 
 function module:apply()
-	love.graphics.setColor(self.r * 255, self.g * 255, self.b * 255, self.a * 255)
+	if config and config.version == "0.10.2" then
+		love.graphics.setColor(self.r * 255, self.g * 255, self.b * 255, self.a * 255)
+	else
+		love.graphics.setColor(self.r, self.g, self.b, self.a)
+	end
 end
 
 return module
