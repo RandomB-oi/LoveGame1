@@ -15,6 +15,10 @@ module.new = function(self)
 	self.fly = false
 
 	self.toolbar = instance.new("container", 9)
+
+	self.toolbar:giveItem(instance.new("iron_pick", self, "iron_pick", 1, nil))
+	self.toolbar:giveItem(instance.new("torch", self, "torch", 100, nil))
+
 	self.currentItem = 1
 	local m1Down, m2Down
 	self.maid:giveTask(self.scene.inputBegan:connect(function(key, isMouse, gp)

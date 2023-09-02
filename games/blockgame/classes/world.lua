@@ -135,11 +135,12 @@ function module:calculateLighting(rx, ry)
 	local function calculate()
 		local changed
 		local modifiedCount = 0
-		while modifiedCount < 500 do
+		while modifiedCount < 1000 do
 			local i, block = next(lightingBlocks, leftOff)
 			leftOff = i
 			if not (i and block) then 
 				leftOff = nil
+				print("was nil, stop it")
 				break 
 			end
 
@@ -177,28 +178,21 @@ function module:calculateLighting(rx, ry)
 			end	
 		end)()
 	else
-		local threadCounts = 1
 		-- for x, row in pairs(self.blocks) do
 		-- 	for y, block in pairs(row) do
 		-- 		table.insert(lightingBlocks, block)
 		-- 	end
 		-- end
-		local connections = {}
 		local beginTime = os.clock()
-		for _ = 1, threadCounts do
-			local i = 0
-			local conn conn = self.scene.update:connect(function()
-				i = i + 1
-				if i % 10 ~= 0 then return end
-				if not calculate() then	
-					print("took",os.clock()-beginTime,"seconds to load")
-					for i,v in pairs(connections) do
-						v:disconnect()
-					end
-				end
-			end)
-			table.insert(connections, conn)
-		end
+		local i = 0
+		local conn conn = self.scene.update:connect(function()
+			i = i + 1
+			-- if i % 10 ~= 0 then return end
+			if not calculate() then	
+				print("took",os.clock()-beginTime,"seconds to load")
+				conn:disconnect()
+			end
+		end)
 	end
 end
 
