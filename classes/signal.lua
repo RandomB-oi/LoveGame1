@@ -52,8 +52,13 @@ function module:fire(...)
 		end
 		table.insert(orderedConnections[connection.order], connection)
 	end
-	
-	for order, list in pairs(orderedConnections) do
+
+	local orderList = {}
+	for order in pairs(orderedConnections) do
+		table.insert(orderList, order)
+	end
+	for i = #orderList, 1, -1 do
+		local list = orderedConnections[orderList[i]]
 		for _, connection in ipairs(list) do
 			coroutine.wrap(connection._callback)(...)
 		end

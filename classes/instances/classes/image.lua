@@ -6,6 +6,7 @@ module.new = function(self)
 	self:setImage("")
 	self.maid.draw = self.scene.guiDraw:connect(function()
 		if not self.imageObject then return end
+		if not self:isActive() then return end
 		if self.parent then
 			self.parent._drawn:wait()
 		end

@@ -20,15 +20,16 @@ module.new = function(self)
 
 	self.clicked = signal.new()
 	self.maid:giveTask(self.scene.guiInputBegan:connect(function(key, isMouse)
+		if not self:isActive() then return end
 		if isMouse and self:isHovering() then
-			if key == 1 then
-				_gameProcessedGobal = true
-				self.clicked:fire()
-			end
+			_gameProcessedGobal = true
+			self.clicked:fire(key)
 		end
 	end))
 	
 	self.maid:giveTask(self.scene.update:connect(function(dt)
+		if not self:isActive() then return end
+		
 		local relativeSize
 		local relativePosition
 		if self.parent then
@@ -39,6 +40,10 @@ module.new = function(self)
 			relativeSize = vector2.new(love.graphics.getDimensions())
 			relativePosition = vector2.new(0,0)
 		end
+
+		if self.maid.draw then
+			self.maid.draw.order = self.zIndex
+		end
 		
 		self.renderSize = self.size:calculate(relativeSize)
 		self.renderPosition = relativePosition + self.position:calculate(relativeSize) - self.renderSize * self.anchorPoint
@@ -46,7 +51,7 @@ module.new = function(self)
 		self._updated:fire()
 	end))
 	self.maid.draw = self.scene.guiDraw:connect(function()
-		self.maid.draw.order = self.zIndex
+		if not self:isActive() then return end
 		if self.parent then
 			self.parent._drawn:wait()
 		end

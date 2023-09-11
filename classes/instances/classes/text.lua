@@ -14,6 +14,7 @@ module.new = function(self)
 	self.textScale = 4
 	
 	self.maid.draw = self.scene.guiDraw:connect(function()
+		if not self:isActive() then return end
 		if self.parent then
 			self.parent._drawn:wait()
 		end

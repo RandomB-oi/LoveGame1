@@ -9,6 +9,7 @@ module.new = function(self)
 	self.color = color.new(255,255,255,255)
 	
 	self.maid.draw = self.scene.draw:connect(function()
+		if not self:isActive() then return end
 		love.graphics.push()
 		love.graphics.translate(self.cframe.x, self.cframe.y)
 		love.graphics.rotate(self.cframe.r)

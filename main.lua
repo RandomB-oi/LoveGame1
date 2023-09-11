@@ -31,7 +31,7 @@ game = classes.game
 thread = classes.thread
 datastore = classes.datastore
 
-local games = {"blockgame", "american_simulator", "yard_defence"}
+local games = {"blockgame", "american_simulator", "yard_defence", "topdowngame"}
 local function loadGame(name)
 	local path = "games/"..name
 	gameDirectory, order = classUtil.recurseRequire(path)
@@ -50,7 +50,7 @@ guiInputEnded = signal.new()
 love.graphics.setLineWidth(1.5)
 
 -- game selection
-local preDeterminedIndex = 1
+local preDeterminedIndex = 4
 
 if preDeterminedIndex then
 	loadGame(games[preDeterminedIndex])

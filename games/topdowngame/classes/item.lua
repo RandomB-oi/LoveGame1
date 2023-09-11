@@ -1,31 +1,30 @@
 local module = {}
 module.__index = module
 
-module.new = function(name, extraData)
+module.new = function(itemName, amount)
 	local self = setmetatable({}, module)
 	self.maid = maid.new()
 
-	self.name = name or "block"
-	self.extraData = extraData
-	self.light = {r=15,g=15,b=15}
-	self.collidable = false
+	self.itemClass = "item"
+	
+	self.name = itemName or "item"
+	self.amount = amount or 1
+	self.stackSize = 10
+	self.image = nil
+	self.color = color.new(0.5, 0.5, 0.5, 1)
 	
 	return self
 end
 
-function module:getLightColor()
-	return color.new(self.light.r/15, self.light.g/15, self.light.b/15)
+function module:remove(amount)
+	self.amount = self.amount - amount
+	if self.amount <= 0 then
+		self:destroy()
+	end
 end
 
--- local function applyHighest(base, add)
--- 	base.r = math.max(add.r, base.r)
--- 	base.g = math.max(add.g, base.g)
--- 	base.b = math.max(add.b, base.b)
--- end
-
-local mainColor = color.new(1,1,1,1)
 function module:render(cf, size)
-	local color = (self.color or mainColor) * self:getLightColor()
+	local color = self.color --* self:getLightColor()
 	color:apply()
 	love.graphics.push()
 	love.graphics.translate(cf.x+size.x/2, cf.y+size.y/2)
@@ -39,11 +38,12 @@ function module:render(cf, size)
 end
 
 function module:destroy()
+	self.destroyed = true
 	self.maid:destroy()
 end
 
 module.init = function()
-	instance.addClass("tile", module)
+	instance.addClass("item", module)
 end
 
 return module

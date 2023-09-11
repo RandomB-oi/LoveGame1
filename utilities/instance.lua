@@ -14,4 +14,8 @@ function module.addClass(name, class)
 	instanceList[name] = class
 end
 
+function module.getClass(name)
+	return instanceList[name]
+end
+
 return module
