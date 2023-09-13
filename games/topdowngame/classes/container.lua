@@ -4,6 +4,11 @@ module.__index = module
 local dragItem = nil
 module.dragChanged = signal.new()
 
+module.setDragItem = function(newItem)
+	dragItem = newItem
+	module.dragChanged:fire(dragItem)
+end
+
 module.new = function(width, height)
 	local self = setmetatable({}, module)
 	self.maid = maid.new()
@@ -100,6 +105,11 @@ function module:createGui(scene)
 									dragItem = instance.new(slot.itemClass, slot.name, amt)
 									if slot.destroyed then slot = {} self.slots[x][y] = slot end
 								end
+							end
+						elseif key == 3 then
+							if dragItem and not slot.name then
+								slot = instance.new(dragItem.itemClass, dragItem.name, dragItem.stackSize)
+								self.slots[x][y] = slot
 							end
 						end
 						
